@@ -421,7 +421,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
         String str = h  + "ч " + m  + "мин";
         cutBox.setText(str);
     }
-
+/*
     //IMAGE
     public void onLoadImage(View v) {
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -443,7 +443,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
         }
 
     }
-
+*/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
