@@ -27,10 +27,11 @@ import android.widget.Toast;
 
 import com.example.lab32.database.DbOpenHelper;
 import com.example.lab32.database.StoreDb;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.LinkedList;
+
 
 public class EditRecordActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
     long recordId=0;
@@ -54,7 +55,11 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     //Image
     int countImage = 0;
     ImageView[] imageViews = new ImageView[3];
-    LinkedList< Object[] > imagePaths = new LinkedList<>();
+    //!!!
+    //LinkedList< Object[] > imagePaths = new LinkedList<>();
+    String[] imagePaths = new String[3];
+    //&&&&&&
+    //Uri[] imagePathsUri = new Uri[3];
     static final int GALLERY_REQUEST = 1;
 
     //Button
@@ -167,6 +172,44 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
             categorySpinner.setSelection( positionInSpinner );
 
             //Загрузка изображений
+            String tableIm = "record as R inner join photo as P on R._id = P.record_id";
+            String[] columnsIm = {"P._id as _id", "P.path as Path"};
+            String selectionIm = "R." + StoreDb.Record.COLUMN_ID + " = ?";
+            String[] selectionArgsIm =  new String[]{String.valueOf(recordId)};
+            cursor = db.query(tableIm, columnsIm, selectionIm, selectionArgsIm, null, null, null);
+
+            //cursor = db.query(tableIm, columnsIm, null, null, null, null, null);
+            if (cursor != null && cursor.getCount() > 0){
+                cursor.moveToFirst();
+                int i = 0;
+                do {
+                   /* Picasso.with(this)
+                            //.load(Uri.parse(cursor.getString(1)))
+                            //.load(new File("/storage/emulated/0/DCIM/HD/IMG_1485777590048.jpg"))
+                            .load("/storage/emulated/0/DCIM/HD/IMG_1485777590048.jpg")
+                            .placeholder(R.drawable.ic_autorenew_black_24dp)
+                            .error(R.drawable.ic_sync_disabled_black_24dp)
+                            .into(imageViews[i]);
+                            */
+                    /*TextView textUi;
+                    textUi = (TextView)findViewById(R.id.textUri);
+                    String text = cursor.getString(1);
+                    textUi.setText(text);*/
+                    //!!!!!!!!!!!!!!!!
+                    Uri u = Uri.parse(cursor.getString(1));
+                    Picasso.with(this)
+                            .load(u)
+                            .placeholder(R.drawable.ic_autorenew_black_24dp)
+                            .error(R.drawable.ic_sync_disabled_black_24dp)
+                            .into(imageViews[i]);
+                    //Uri u = Uri.fromFile(new File(cursor.getString(1)));
+                    //Uri u = Uri.fromFile(new File("/storage/emulated/0/DCIM/Программа 24.11.16г..jpg"));
+                    //imageViews[countImage].setImageURI(u);
+                    //Uri selectedImage = Uri.parse(cursor.getString(1));
+                    //&&&&&&&&&&&&&&&&
+                    i++;
+                }while (cursor.moveToNext() && i < 3);
+            }
             /*String tableIm = "record as R inner join photo as P on R._id = P.record_id";
             String[] columnsIm = {"P._id as _id", "P.path as Path"};
             cursor = db.query(tableIm, columnsIm, null, null, null, null, null);
@@ -245,7 +288,8 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
             db.update(StoreDb.Record.TABLE_NAME, cv, StoreDb.Category.COLUMN_ID + "=" + String.valueOf(recordId), null);
 
             //Сохранение картинок
-            /*for(int i = 0; i<imagePaths.size() && i<3; i++){
+            //!!!!!!!!
+            /*for(int i = 0; i < imagePaths.size() && i<3; i++){
                 Object[] o = imagePaths.get(i);
                 if (o != null && o[0] != null){
                     ContentValues c = new ContentValues();
@@ -254,10 +298,30 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     db.insert(StoreDb.Photo.TABLE_NAME, null, c);
                 }
             }*/
+            for(int i = 0; i < 3; i++){
+                if (imagePaths[i] != null){
+                    ContentValues c = new ContentValues();
+                    c.put(StoreDb.Photo.COLUMN_PATH, imagePaths[i]);
+                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, recordId);
+                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
+                }
+            }
+            //&&&&&&
+            /*
+            for (int i = 0; i < imagePathsUri.length && i < 3; i++){
+                if (imagePathsUri[i] != null){
+                    ContentValues c = new ContentValues();
+                    c.put(StoreDb.Photo.COLUMN_PATH, imagePathsUri[i].toString());
+                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, recordId);
+                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
+                }
+            }*/
         } else {
             long id = db.insert(StoreDb.Record.TABLE_NAME, null, cv);
 
             //Сохранение картинок
+            //!!!
+            /*
             for(int i = 0; i<imagePaths.size() && i<3; i++){
                 Object[] o = imagePaths.get(i);
                 if (o != null){
@@ -267,6 +331,25 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     db.insert(StoreDb.Photo.TABLE_NAME, null, c);
                 }
             }
+            */
+            for(int i = 0; i < 3; i++){
+                if (imagePaths[i] != null){
+                    ContentValues c = new ContentValues();
+                    c.put(StoreDb.Photo.COLUMN_PATH, imagePaths[i]);
+                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, id);
+                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
+                }
+            }
+            //&&&&&&
+            /*
+            for (int i = 0; i < imagePathsUri.length && i < 3; i++){
+                if (imagePathsUri[i] != null){
+                    ContentValues c = new ContentValues();
+                    c.put(StoreDb.Photo.COLUMN_PATH, imagePathsUri[i].toString());
+                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, id);
+                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
+                }
+            }*/
         }
         goMain();
     }
@@ -421,7 +504,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
         String str = h  + "ч " + m  + "мин";
         cutBox.setText(str);
     }
-/*
+
     //IMAGE
     public void onLoadImage(View v) {
         Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
@@ -432,8 +515,15 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     public void onDeleteImage(View v) {
         countImage--;
         imageViews[countImage].setImageDrawable(null);
-        imagePaths.remove();
-
+        //!!!!
+        //imagePaths.remove();
+        for(int i = 0; i < 3; i++){
+            imagePaths[i] = null;
+        }
+        //&&&&&&
+        /*for(int i = 0; i < 3; i++){
+            imagePathsUri[i] = null;
+        }*/
         if (countImage < 3){
             loadImageButton.setEnabled(true);
         }
@@ -443,7 +533,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
         }
 
     }
-*/
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
@@ -453,6 +543,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
         switch(requestCode) {
             case GALLERY_REQUEST:
                 if(resultCode == RESULT_OK){
+                    //!!!!
                     Uri selectedImage = imageReturnedIntent.getData();
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
@@ -461,6 +552,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
+                    //&&&&&&
 
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
@@ -468,12 +560,21 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                         e.printStackTrace();
                     }
 
-                    imageViews[countImage].setImageBitmap(bitmap);
-
-                    Object[] o = new Object[2];
+                    //imageViews[countImage].setImageBitmap(bitmap);
+                    Picasso.with(this)
+                            .load(selectedImage)
+                            .placeholder(R.drawable.ic_autorenew_black_24dp)
+                            .error(R.drawable.ic_sync_disabled_black_24dp)
+                            .into(imageViews[countImage]);
+                    //!!!!
+                    /*Object[] o = new Object[2];
                     o[0] = null;
                     o[1] = filePath;
-                    imagePaths.add(o);
+                    imagePaths.add(o);*/
+
+                    imagePaths[countImage] = filePath;
+                    //&&&&&&
+                    //imagePathsUri[countImage] = selectedImage;
                     countImage++;
 
                     if (countImage == 3){

@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.lab32.database.StoreDb;
-
 public class DbOpenHelper extends SQLiteOpenHelper{
 
     private static final String DATABASE_NAME = "userstore.db"; // название бд
@@ -51,12 +49,12 @@ public class DbOpenHelper extends SQLiteOpenHelper{
                 + StoreDb.Record.COLUMN_DESCRIPTION + ", "
                 + StoreDb.Record.COLUMN_CATEGORY_ID
                 + ") VALUES (2, 'Сходить на работу', 2);");
-
+        /*
         db.execSQL("INSERT INTO "+ StoreDb.Photo.TABLE_NAME + " ("
                 + StoreDb.Photo.COLUMN_ID + ", "
                 + StoreDb.Photo.COLUMN_PATH + ", "
                 + StoreDb.Photo.COLUMN_RECORD_ID
-                + ") VALUES (1, 'D:/img', 1);");
+                + ") VALUES (1, 'D:/img', 1);");*/
     }
 
     @Override
