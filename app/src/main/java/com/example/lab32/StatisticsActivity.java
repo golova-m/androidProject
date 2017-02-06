@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -42,6 +45,15 @@ public class StatisticsActivity extends AppCompatActivity {
     SQLiteDatabase db;
     Cursor cursor;
 
+    //Tab3
+    ListView mList;
+    DbOpenHelper sqlHelperTab;
+    SQLiteDatabase dbTab;
+    Cursor userCursor;
+    SimpleCursorAdapter userAdapter;
+    Long[] idTab = new Long[1000];
+    int indexIdTab = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,22 +65,46 @@ public class StatisticsActivity extends AppCompatActivity {
 
         TabHost.TabSpec tabSpec = tabHost.newTabSpec("tag1");
         tabSpec.setContent(R.id.linearLayout1);
-        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.icon_1));
+        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.ic_arrow_drop_down_circle_black_24dp));
         tabHost.addTab(tabSpec);
 
         tabSpec = tabHost.newTabSpec("tag2");
         tabSpec.setContent(R.id.linearLayout2);
-        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.icon_2));
+        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.ic_arrow_drop_down_circle_black_24dp));
         tabHost.addTab(tabSpec);
 
         tabSpec = tabHost.newTabSpec("tag3");
         tabSpec.setContent(R.id.linearLayout3);
-        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.icon_3));
+        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.ic_arrow_drop_down_circle_black_24dp));
         tabHost.addTab(tabSpec);
+
+        mList = (ListView)findViewById(R.id.listTab);
+        sqlHelperTab = new DbOpenHelper(getApplicationContext());
+        dbTab = sqlHelperTab.getReadableDatabase();
+        String table = "category as C inner join record as R on C._id = R.category_id";
+        String[] columns = {"R._id as _id","C.name as Name", "R.description as Description"};
+        String selection = null;  //"salary < ?";
+        String[] selectionArgs = null; // {"40000"};
+        userCursor = dbTab.query(table, columns, selection, selectionArgs, null, null, null);
+
+        String[] headers = new String[] {"Name"};
+        userAdapter = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item,
+                userCursor, headers, new int[]{android.R.id.text2}, 0);
+        //header.setText("Найдено элементов: " + String.valueOf(userCursor.getCount()));
+        mList.setAdapter(userAdapter);
+        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                idTab[indexIdTab] = id;
+                indexIdTab++;
+                String str = "Ok";
+                resultTextTab3.setText(str);
+            }
+        });
 
         tabSpec = tabHost.newTabSpec("tag4");
         tabSpec.setContent(R.id.linearLayout4);
-        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.icon_4));
+        tabSpec.setIndicator("", getResources().getDrawable(R.drawable.ic_arrow_drop_down_circle_black_24dp));
         tabHost.addTab(tabSpec);
 
         tabHost.setCurrentTab(0);
@@ -261,7 +297,10 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     public void onClickTab3(View view){
-        String str = "Ura!";
+        String str = " ";
+        for (int i = 0; i < indexIdTab; i++){
+            str = String.valueOf(idTab[i]) + " ";
+        }
         resultTextTab3.setText(str);
     }
 
