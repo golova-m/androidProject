@@ -29,7 +29,6 @@ import com.example.lab32.database.DbOpenHelper;
 import com.example.lab32.database.StoreDb;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.Calendar;
 
 
@@ -196,17 +195,25 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     String text = cursor.getString(1);
                     textUi.setText(text);*/
                     //!!!!!!!!!!!!!!!!
+
+                    //String ph[] = cursor.getString(1).split("/");
+                    //Uri u = Uri.parse(Arrays.toString(ph));
+
                     Uri u = Uri.parse(cursor.getString(1));
                     Picasso.with(this)
                             .load(u)
                             .placeholder(R.drawable.ic_autorenew_black_24dp)
                             .error(R.drawable.ic_sync_disabled_black_24dp)
                             .into(imageViews[i]);
+
+
+                    //////////////////
                     //Uri u = Uri.fromFile(new File(cursor.getString(1)));
                     //Uri u = Uri.fromFile(new File("/storage/emulated/0/DCIM/Программа 24.11.16г..jpg"));
                     //imageViews[countImage].setImageURI(u);
                     //Uri selectedImage = Uri.parse(cursor.getString(1));
                     //&&&&&&&&&&&&&&&&
+                    //imageViews[i].setImageURI(Uri.fromFile(new File(Arrays.toString(ph))));
                     i++;
                 }while (cursor.moveToNext() && i < 3);
             }
@@ -553,12 +560,12 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
                     //&&&&&&
-
+                    /*
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                     } catch (IOException e) {
                         e.printStackTrace();
-                    }
+                    }*/
 
                     //imageViews[countImage].setImageBitmap(bitmap);
                     Picasso.with(this)

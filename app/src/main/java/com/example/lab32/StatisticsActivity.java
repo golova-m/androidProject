@@ -8,9 +8,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TabHost;
@@ -21,6 +23,8 @@ import com.example.lab32.database.StoreDb;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StatisticsActivity extends AppCompatActivity {
 
@@ -54,6 +58,12 @@ public class StatisticsActivity extends AppCompatActivity {
     Long[] idTab = new Long[1000];
     int indexIdTab = 0;
 
+    LinearLayout linearLayoutCheckBox;
+    OnClickListener onClickCheckBox;
+    private Map<Integer, Boolean> mapCheckBox = new HashMap<Integer, Boolean>();
+    Boolean mapValue = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +88,6 @@ public class StatisticsActivity extends AppCompatActivity {
         tabSpec.setIndicator("", getResources().getDrawable(R.drawable.ic_arrow_drop_down_circle_black_24dp));
         tabHost.addTab(tabSpec);
 
-        mList = (ListView)findViewById(R.id.listTab);
         sqlHelperTab = new DbOpenHelper(getApplicationContext());
         dbTab = sqlHelperTab.getReadableDatabase();
         String table = "category as C inner join record as R on C._id = R.category_id";
@@ -87,20 +96,36 @@ public class StatisticsActivity extends AppCompatActivity {
         String[] selectionArgs = null; // {"40000"};
         userCursor = dbTab.query(table, columns, selection, selectionArgs, null, null, null);
 
-        String[] headers = new String[] {"Name"};
-        userAdapter = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item,
-                userCursor, headers, new int[]{android.R.id.text2}, 0);
-        //header.setText("Найдено элементов: " + String.valueOf(userCursor.getCount()));
-        mList.setAdapter(userAdapter);
-        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        onClickCheckBox = new OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                idTab[indexIdTab] = id;
-                indexIdTab++;
-                String str = "Ok";
-                resultTextTab3.setText(str);
+            public void onClick(View v) {
+                int checkBoxId = v.getId();
+                Boolean valueBoolen;
+                valueBoolen = mapCheckBox.get(checkBoxId);
+                mapCheckBox.remove(checkBoxId);
+                valueBoolen=!valueBoolen;
+                mapCheckBox.put(checkBoxId, valueBoolen);
             }
-        });
+        };
+
+        linearLayoutCheckBox = (LinearLayout) findViewById(R.id.linearLayoutCheckBox);
+        LinearLayout.LayoutParams lCheckBoxParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        if (userCursor != null){
+            if (userCursor.moveToFirst()){
+                do{
+                    String textCheckBox = userCursor.getString(1);
+                    CheckBox checkBox = new CheckBox(this);
+                    checkBox.setLayoutParams(lCheckBoxParams);
+                    checkBox.setOnClickListener(onClickCheckBox);
+                    checkBox.setText(textCheckBox);
+                    checkBox.setId(userCursor.getInt(0));
+                    linearLayoutCheckBox.addView(checkBox);
+                    mapCheckBox.put(userCursor.getInt(0), mapValue);
+                }while(userCursor.moveToNext());
+            }
+        }
 
         tabSpec = tabHost.newTabSpec("tag4");
         tabSpec.setContent(R.id.linearLayout4);
@@ -298,10 +323,43 @@ public class StatisticsActivity extends AppCompatActivity {
 
     public void onClickTab3(View view){
         String str = " ";
-        for (int i = 0; i < indexIdTab; i++){
+        /*for (int i = 0; i < indexIdTab; i++){
             str = String.valueOf(idTab[i]) + " ";
+        }*/
+        String nameCategory = "";
+        Cursor cursor = dbTab.query(StoreDb.Category.TABLE_NAME, null, null, null, null, null, null);
+        long maxTime = 0;
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    long id = cursor.getInt( cursor.getColumnIndex(StoreDb.Category.COLUMN_ID) );
+
+                    String table = StoreDb.Record.TABLE_NAME;
+                    String selection = StoreDb.Record.COLUMN_CATEGORY_ID + " = ?";  //cutegory_id = ?
+                    String[] selectionArgs =  new String[]{String.valueOf(id)};
+                    Cursor c = db.query(table, null, selection, selectionArgs, null, null, null);
+
+                    long sumTime = 0;
+
+                    if (c != null) {
+                        if (c.moveToFirst()) {
+                            do {
+                                long t = c.getInt( c.getColumnIndex(StoreDb.Record.COLUMN_CUT) );
+                                sumTime += t;
+                            } while (c.moveToNext());
+                        }
+                    }
+
+                    if (sumTime > maxTime){
+                        maxTime= sumTime;
+                        nameCategory = cursor.getString( cursor.getColumnIndex(StoreDb.Category.COLUMN_NAME) );
+                    }
+
+                } while (cursor.moveToNext());
+            }
         }
-        resultTextTab3.setText(str);
+        resultTextTab3.setText(nameCategory + " " + maxTime);
     }
 
     public void onClickTab4(View view){
