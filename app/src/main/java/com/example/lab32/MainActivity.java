@@ -68,13 +68,13 @@ public class MainActivity extends ActionBarActivity  {
 
         //cursor =  db.rawQuery("select record.description, category.name  from category, record where category._id = record.category_id", null);
         String table = "category as C inner join record as R on C._id = R.category_id";
-        String[] columns = {"R._id as _id","C.name as Name", "R.description as Description"};
+        String[] columns = {"R._id as _id","C.name as Name", "R.description as Description", "R.stop_date_time as Date"};
         String selection = null;  //"salary < ?";
         String[] selectionArgs = null; // {"40000"};
         userCursor = db.query(table, columns, selection, selectionArgs, null, null, null);
 
         //String[] headers = new String[] {StoreDb.Record.COLUMN_DESCRIPTION};
-        String[] headers = new String[] {"Description", "Name"};
+        String[] headers = new String[] {"Description", "Name", "Date"};
         userAdapter = new SimpleCursorAdapter(this, android.R.layout.two_line_list_item,
                 userCursor, headers, new int[]{android.R.id.text1, android.R.id.text2}, 0);
         header.setText("Найдено элементов: " + String.valueOf(userCursor.getCount()));

@@ -29,6 +29,7 @@ import com.example.lab32.database.DbOpenHelper;
 import com.example.lab32.database.StoreDb;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.Calendar;
 
 
@@ -171,6 +172,9 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
             categorySpinner.setSelection( positionInSpinner );
 
             //Загрузка изображений
+            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+            photoPickerIntent.setType("image/*");
+
             String tableIm = "record as R inner join photo as P on R._id = P.record_id";
             String[] columnsIm = {"P._id as _id", "P.path as Path"};
             String selectionIm = "R." + StoreDb.Record.COLUMN_ID + " = ?";
@@ -182,14 +186,15 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                 cursor.moveToFirst();
                 int i = 0;
                 do {
-                   /* Picasso.with(this)
+                   Picasso.with(this)
                             //.load(Uri.parse(cursor.getString(1)))
-                            //.load(new File("/storage/emulated/0/DCIM/HD/IMG_1485777590048.jpg"))
-                            .load("/storage/emulated/0/DCIM/HD/IMG_1485777590048.jpg")
+                            //.load(Uri.fromFile(new File("/storage/emulated/0/1.jpg")))
+                            .load(Uri.fromFile(new File(cursor.getString(1))))
+                            //.load("/storage/emulated/0/DCIM/HD/IMG_1485777590048.jpg")
                             .placeholder(R.drawable.ic_autorenew_black_24dp)
                             .error(R.drawable.ic_sync_disabled_black_24dp)
                             .into(imageViews[i]);
-                            */
+
                     /*TextView textUi;
                     textUi = (TextView)findViewById(R.id.textUri);
                     String text = cursor.getString(1);
@@ -198,13 +203,41 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
 
                     //String ph[] = cursor.getString(1).split("/");
                     //Uri u = Uri.parse(Arrays.toString(ph));
+/*
+                    String s1 = "/storage/extSdCard/DCIM/Camera/20170105_164830.jpg";
+                    File file = new File(s1);
 
-                    Uri u = Uri.parse(cursor.getString(1));
+                    String s2 = file.getAbsolutePath();*/
+
+                    /*File file = new File("/");
+                    String s = file.getAbsolutePath();
+                    File[] files = file.listFiles();*/
+
+                    /*String strs[] = new String[files.length];
+                    for(int ii = 0; ii < files.length; ii++){
+                        strs[ii] = files[ii].getAbsolutePath();
+                        File[] files1 = files[ii].listFiles();
+                        if (files1 != null) {
+                            String[] strs1 = new String[files1.length];
+                            for (int jj = 0; jj < files1.length; jj++) {
+                                strs1[jj] = files1[jj].getAbsolutePath();
+                            }
+                        }
+                    }
+                    int br = 0;*/
+
+                    //file.
+                    //Uri u = Uri.parse(cursor.getString(1));
+                    //Uri u = Uri.parse(s1);
+
+/*
                     Picasso.with(this)
                             .load(u)
                             .placeholder(R.drawable.ic_autorenew_black_24dp)
                             .error(R.drawable.ic_sync_disabled_black_24dp)
                             .into(imageViews[i]);
+                    */
+                    //imageViews[i].setImageURI(Uri.fromFile(new File(s1, s2)));
 
 
                     //////////////////
@@ -552,13 +585,17 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                 if(resultCode == RESULT_OK){
                     //!!!!
                     Uri selectedImage = imageReturnedIntent.getData();
+                    String uriStr = selectedImage.toString();
+
+                    //Сохранение полного пути
+
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
                     cursor.moveToFirst();
-
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
+
                     //&&&&&&
                     /*
                     try {

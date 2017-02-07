@@ -24,7 +24,6 @@ import com.example.lab32.database.StoreDb;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 
 public class StatisticsActivity extends AppCompatActivity {
 
@@ -60,8 +59,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
     LinearLayout linearLayoutCheckBox;
     OnClickListener onClickCheckBox;
-    private Map<Integer, Boolean> mapCheckBox = new HashMap<Integer, Boolean>();
-    Boolean mapValue = false;
+    private HashMap<Integer, Boolean> mapCheckBox = new HashMap<Integer, Boolean>();
 
 
     @Override
@@ -90,11 +88,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
         sqlHelperTab = new DbOpenHelper(getApplicationContext());
         dbTab = sqlHelperTab.getReadableDatabase();
-        String table = "category as C inner join record as R on C._id = R.category_id";
-        String[] columns = {"R._id as _id","C.name as Name", "R.description as Description"};
-        String selection = null;  //"salary < ?";
-        String[] selectionArgs = null; // {"40000"};
-        userCursor = dbTab.query(table, columns, selection, selectionArgs, null, null, null);
+        userCursor = dbTab.query(StoreDb.Category.TABLE_NAME, null, null, null, null, null, null);
 
         onClickCheckBox = new OnClickListener() {
             @Override
@@ -115,14 +109,17 @@ public class StatisticsActivity extends AppCompatActivity {
         if (userCursor != null){
             if (userCursor.moveToFirst()){
                 do{
-                    String textCheckBox = userCursor.getString(1);
+                    String textCheckBox = userCursor.getString( userCursor.getColumnIndex(StoreDb.Category.COLUMN_NAME));
                     CheckBox checkBox = new CheckBox(this);
                     checkBox.setLayoutParams(lCheckBoxParams);
                     checkBox.setOnClickListener(onClickCheckBox);
                     checkBox.setText(textCheckBox);
-                    checkBox.setId(userCursor.getInt(0));
+                    checkBox.setId(userCursor.getInt(userCursor.getColumnIndex(StoreDb.Category.COLUMN_ID))); //_id
                     linearLayoutCheckBox.addView(checkBox);
-                    mapCheckBox.put(userCursor.getInt(0), mapValue);
+                    mapCheckBox.put(
+                            userCursor.getInt(userCursor.getColumnIndex(StoreDb.Category.COLUMN_ID)),
+                            false
+                    );
                 }while(userCursor.moveToNext());
             }
         }
@@ -251,15 +248,21 @@ public class StatisticsActivity extends AppCompatActivity {
         int maxCount = 0;
         String nameCategory = "";
 
-
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
                     long id = cursor.getInt( cursor.getColumnIndex(StoreDb.Category.COLUMN_ID) );
 
                     String table = StoreDb.Record.TABLE_NAME;
-                    String selection = StoreDb.Record.COLUMN_CATEGORY_ID + " = ?";  //cutegory_id = ?
-                    String[] selectionArgs =  new String[]{String.valueOf(id)};
+                    String selection = "record.category_id = ? and ((record.start_date_time > ? and record.start_date_time < ?)" +
+                            " or (record.stop_date_time > ? and record.stop_date_time < ?))";  //cutegory_id = ?
+                    String[] selectionArgs =  new String[]{
+                            String.valueOf(id),
+                            String.valueOf(startDate.getTimeInMillis()),
+                            String.valueOf(stopDate.getTimeInMillis()),
+                            String.valueOf(startDate.getTimeInMillis()),
+                            String.valueOf(stopDate.getTimeInMillis())
+                    };
                     Cursor c = db.query(table, null, selection, selectionArgs, null, null, null);
                     if (c.getCount() > maxCount){
                         maxCount = c.getCount();
@@ -287,8 +290,15 @@ public class StatisticsActivity extends AppCompatActivity {
                     long id = cursor.getInt( cursor.getColumnIndex(StoreDb.Category.COLUMN_ID) );
 
                     String table = StoreDb.Record.TABLE_NAME;
-                    String selection = StoreDb.Record.COLUMN_CATEGORY_ID + " = ?";  //cutegory_id = ?
-                    String[] selectionArgs =  new String[]{String.valueOf(id)};
+                    String selection = "record.category_id = ? and ((record.start_date_time > ? and record.start_date_time < ?)" +
+                            " or (record.stop_date_time > ? and record.stop_date_time < ?))";  //cutegory_id = ?
+                    String[] selectionArgs =  new String[]{
+                            String.valueOf(id),
+                            String.valueOf(startDate.getTimeInMillis()),
+                            String.valueOf(stopDate.getTimeInMillis()),
+                            String.valueOf(startDate.getTimeInMillis()),
+                            String.valueOf(stopDate.getTimeInMillis())
+                    };
                     Cursor c = db.query(table, null, selection, selectionArgs, null, null, null);
 
                     long sumTime = 0;
@@ -323,43 +333,42 @@ public class StatisticsActivity extends AppCompatActivity {
 
     public void onClickTab3(View view){
         String str = " ";
-        /*for (int i = 0; i < indexIdTab; i++){
-            str = String.valueOf(idTab[i]) + " ";
-        }*/
-        String nameCategory = "";
+        long sumTime = 0;
         Cursor cursor = dbTab.query(StoreDb.Category.TABLE_NAME, null, null, null, null, null, null);
-        long maxTime = 0;
-
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 do {
-                    long id = cursor.getInt( cursor.getColumnIndex(StoreDb.Category.COLUMN_ID) );
+                    int id = cursor.getInt( cursor.getColumnIndex(StoreDb.Category.COLUMN_ID) );
+                    boolean value = mapCheckBox.get(id);
+                    if (value){
 
-                    String table = StoreDb.Record.TABLE_NAME;
-                    String selection = StoreDb.Record.COLUMN_CATEGORY_ID + " = ?";  //cutegory_id = ?
-                    String[] selectionArgs =  new String[]{String.valueOf(id)};
-                    Cursor c = db.query(table, null, selection, selectionArgs, null, null, null);
+                        String table = StoreDb.Record.TABLE_NAME;
+                        String selection = "record.category_id = ? and ((record.start_date_time > ? and record.start_date_time < ?)" +
+                                " or (record.stop_date_time > ? and record.stop_date_time < ?))";  //cutegory_id = ?
+                        String[] selectionArgs =  new String[]{
+                                String.valueOf(id),
+                                String.valueOf(startDate.getTimeInMillis()),
+                                String.valueOf(stopDate.getTimeInMillis()),
+                                String.valueOf(startDate.getTimeInMillis()),
+                                String.valueOf(stopDate.getTimeInMillis())
+                        };
+                        Cursor c = db.query(table, null, selection, selectionArgs, null, null, null);
 
-                    long sumTime = 0;
-
-                    if (c != null) {
-                        if (c.moveToFirst()) {
-                            do {
-                                long t = c.getInt( c.getColumnIndex(StoreDb.Record.COLUMN_CUT) );
-                                sumTime += t;
-                            } while (c.moveToNext());
+                        if (c != null) {
+                            if (c.moveToFirst()) {
+                                do {
+                                    long t = c.getInt( c.getColumnIndex(StoreDb.Record.COLUMN_CUT) );
+                                    sumTime += t;
+                                } while (c.moveToNext());
+                            }
                         }
-                    }
-
-                    if (sumTime > maxTime){
-                        maxTime= sumTime;
-                        nameCategory = cursor.getString( cursor.getColumnIndex(StoreDb.Category.COLUMN_NAME) );
                     }
 
                 } while (cursor.moveToNext());
             }
         }
-        resultTextTab3.setText(nameCategory + " " + maxTime);
+        str = "Sum time by category = " + setInitialCutDateTime(sumTime);
+        resultTextTab3.setText(str);
     }
 
     public void onClickTab4(View view){
