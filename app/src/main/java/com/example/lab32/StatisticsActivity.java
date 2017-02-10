@@ -145,7 +145,6 @@ public class StatisticsActivity extends AppCompatActivity {
         buttonTab3 = (Button) findViewById(R.id.buttonTab3);
         buttonTab4 = (Button) findViewById(R.id.buttonTab4);
 
-
         resultTextTab1 = (TextView) findViewById(R.id.resultTextTab1);
         resultTextTab2 = (TextView) findViewById(R.id.resultTextTab2);
         resultTextTab3 = (TextView) findViewById(R.id.resultTextTab3);
@@ -185,16 +184,6 @@ public class StatisticsActivity extends AppCompatActivity {
             startDate.set(Calendar.MONTH, monthOfYear);
             startDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             setInitialStartDateTime();
-            /*if (startDate.getTimeInMillis() > stopDate.getTimeInMillis()){
-                Toast toast = Toast.makeText(StatisticsActivity.this,
-                        "Error. The start time must be less than end time ", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                saveButton.setEnabled(false);
-            } else{
-                saveButton.setEnabled(true);
-                setInitialCutDateTime();
-            }*/
         }
     };
 
@@ -221,16 +210,6 @@ public class StatisticsActivity extends AppCompatActivity {
             stopDate.set(Calendar.MONTH, monthOfYear);
             stopDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             setInitialStopDateTime();
-            /*if (startDate.getTimeInMillis() > stopDate.getTimeInMillis()){
-                Toast toast = Toast.makeText(StatisticsActivity.this,
-                        "Error. The start time must be less than end time ", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                saveButton.setEnabled(false);
-            } else{
-                saveButton.setEnabled(true);
-                setInitialCutDateTime();
-            }*/
         }
     };
 
@@ -282,7 +261,6 @@ public class StatisticsActivity extends AppCompatActivity {
         Cursor cursor = db.query(StoreDb.Category.TABLE_NAME, null, null, null, null, null, null);
         long maxTime = 0;
         String nameCategory = "";
-
 
         if (cursor != null) {
             if (cursor.moveToFirst()) {

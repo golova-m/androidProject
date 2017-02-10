@@ -36,9 +36,6 @@ public class PhotoActivity extends AppCompatActivity {
         mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Intent intent = new Intent(getApplicationContext(), EditRecordActivity.class);
-                //intent.putExtra("id", id);
-                //startActivity(intent);
             }
         });
         sqlHelper = new DbOpenHelper(getApplicationContext());
@@ -92,14 +89,4 @@ public class PhotoActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
-    /*public void onAddNote(View view){
-        Intent intent = new Intent(this, UserActivity.class);
-        startActivity(intent);
-    }*/
-
-    /*public void onEditRecord(View view){
-        Intent intent = new Intent(this, EditRecordActivity.class);
-        startActivity(intent);
-    }*/
 }

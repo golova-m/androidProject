@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -55,11 +54,7 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     //Image
     int countImage = 0;
     ImageView[] imageViews = new ImageView[3];
-    //!!!
-    //LinkedList< Object[] > imagePaths = new LinkedList<>();
-    String[] imagePaths = new String[3];
-    //&&&&&&
-    //Uri[] imagePathsUri = new Uri[3];
+    static String[] imagePaths = null;
     static final int GALLERY_REQUEST = 1;
 
     //Button
@@ -171,120 +166,52 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
             int positionInSpinner = adapter.getPosition( cursor.getString(5) );
             categorySpinner.setSelection( positionInSpinner );
 
-            //Загрузка изображений
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
+            //ЗАГРУЗКА ИЗОБРАЖЕНИЙ
+            if (imagePaths == null){
+                imagePaths = new String[3];
 
-            String tableIm = "record as R inner join photo as P on R._id = P.record_id";
-            String[] columnsIm = {"P._id as _id", "P.path as Path"};
-            String selectionIm = "R." + StoreDb.Record.COLUMN_ID + " = ?";
-            String[] selectionArgsIm =  new String[]{String.valueOf(recordId)};
-            cursor = db.query(tableIm, columnsIm, selectionIm, selectionArgsIm, null, null, null);
+                String tableIm = "record as R inner join photo as P on R._id = P.record_id";
+                String[] columnsIm = {"P._id as _id", "P.path as Path"};
+                String selectionIm = "R." + StoreDb.Record.COLUMN_ID + " = ?";
+                String[] selectionArgsIm =  new String[]{String.valueOf(recordId)};
+                cursor = db.query(tableIm, columnsIm, selectionIm, selectionArgsIm, null, null, null);
 
-            //cursor = db.query(tableIm, columnsIm, null, null, null, null, null);
-            if (cursor != null && cursor.getCount() > 0){
-                cursor.moveToFirst();
-                int i = 0;
-                do {
-                   Picasso.with(this)
-                            //.load(Uri.parse(cursor.getString(1)))
-                            //.load(Uri.fromFile(new File("/storage/emulated/0/1.jpg")))
-                            .load(Uri.fromFile(new File(cursor.getString(1))))
-                            //.load("/storage/emulated/0/DCIM/HD/IMG_1485777590048.jpg")
-                            .placeholder(R.drawable.ic_autorenew_black_24dp)
-                            .error(R.drawable.ic_sync_disabled_black_24dp)
-                            .into(imageViews[i]);
-
-                    /*TextView textUi;
-                    textUi = (TextView)findViewById(R.id.textUri);
-                    String text = cursor.getString(1);
-                    textUi.setText(text);*/
-                    //!!!!!!!!!!!!!!!!
-
-                    //String ph[] = cursor.getString(1).split("/");
-                    //Uri u = Uri.parse(Arrays.toString(ph));
-/*
-                    String s1 = "/storage/extSdCard/DCIM/Camera/20170105_164830.jpg";
-                    File file = new File(s1);
-
-                    String s2 = file.getAbsolutePath();*/
-
-                    /*File file = new File("/");
-                    String s = file.getAbsolutePath();
-                    File[] files = file.listFiles();*/
-
-                    /*String strs[] = new String[files.length];
-                    for(int ii = 0; ii < files.length; ii++){
-                        strs[ii] = files[ii].getAbsolutePath();
-                        File[] files1 = files[ii].listFiles();
-                        if (files1 != null) {
-                            String[] strs1 = new String[files1.length];
-                            for (int jj = 0; jj < files1.length; jj++) {
-                                strs1[jj] = files1[jj].getAbsolutePath();
-                            }
-                        }
-                    }
-                    int br = 0;*/
-
-                    //file.
-                    //Uri u = Uri.parse(cursor.getString(1));
-                    //Uri u = Uri.parse(s1);
-
-/*
-                    Picasso.with(this)
-                            .load(u)
-                            .placeholder(R.drawable.ic_autorenew_black_24dp)
-                            .error(R.drawable.ic_sync_disabled_black_24dp)
-                            .into(imageViews[i]);
-                    */
-                    //imageViews[i].setImageURI(Uri.fromFile(new File(s1, s2)));
-
-
-                    //////////////////
-                    //Uri u = Uri.fromFile(new File(cursor.getString(1)));
-                    //Uri u = Uri.fromFile(new File("/storage/emulated/0/DCIM/Программа 24.11.16г..jpg"));
-                    //imageViews[countImage].setImageURI(u);
-                    //Uri selectedImage = Uri.parse(cursor.getString(1));
-                    //&&&&&&&&&&&&&&&&
-                    //imageViews[i].setImageURI(Uri.fromFile(new File(Arrays.toString(ph))));
-                    i++;
-                }while (cursor.moveToNext() && i < 3);
-            }
-            /*String tableIm = "record as R inner join photo as P on R._id = P.record_id";
-            String[] columnsIm = {"P._id as _id", "P.path as Path"};
-            cursor = db.query(tableIm, columnsIm, null, null, null, null, null);
-            if (cursor != null) {
-                if (cursor.moveToFirst()) {
-                    int i = 0;
+                if (cursor != null && cursor.getCount() > 0){
+                    cursor.moveToFirst();
+                    countImage = 0;
                     do {
-                        Object[] o = new Object[2];
-                        o[0] = cursor.getString(0);
-                        o[1] = cursor.getString(1);
-                        imagePaths.add(o);
-
-                        //Загрузка изображений на страницу
-
-                        //Uri u = Uri.fromFile(new File(cursor.getString(1)));
-                        //Uri u = Uri.fromFile(new File("/storage/emulated/0/DCIM/Программа 24.11.16г..jpg"));
-                        //imageViews[countImage].setImageURI(u);
-                        //Uri selectedImage = Uri.parse(cursor.getString(1));
-                        try {
-                            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        imageViews[countImage].setImageBitmap(bitmap);
+                        imagePaths[countImage] = cursor.getString(1);
                         countImage++;
-                        i++;
-                    } while (cursor.moveToNext() && i<3);
+                    }while (cursor.moveToNext() && countImage < 3);
                 }
-            }*/
+            }
 
+            for (int i = 0; i < countImage; i++){
+                Picasso.with(this)
+                        .load(Uri.fromFile(new File(imagePaths[i])))
+                        .placeholder(R.drawable.ic_autorenew_black_24dp)
+                        .error(R.drawable.ic_sync_disabled_black_24dp)
+                        .into(imageViews[i]);
+            }
 
+            //Инициализация кнопок
+            if (countImage == 0){
+                loadImageButton.setEnabled(true);
+                deleteImageButton.setEnabled(false);
+            } else if (countImage == 3) {
+                loadImageButton.setEnabled(false);
+                deleteImageButton.setEnabled(true);
+            } else {
+                loadImageButton.setEnabled(true);
+                deleteImageButton.setEnabled(true);
+            }
             cursor.close();
         } else {
             // скрываем кнопку удаления
             delButton.setVisibility(View.GONE);
+            if (imagePaths == null){
+                imagePaths = new String[3];
+            }
         }
     }
 
@@ -314,7 +241,6 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     public void onNothingSelected(AdapterView<?> parent) {
         // Обработка события
     }
-    ////
 
     public void onSave(View view){
         ContentValues cv = new ContentValues();
@@ -327,17 +253,25 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
         if (recordId > 0) {
             db.update(StoreDb.Record.TABLE_NAME, cv, StoreDb.Category.COLUMN_ID + "=" + String.valueOf(recordId), null);
 
+            //Удалние старых картинок
+            String tableIm = "record as R inner join photo as P on R._id = P.record_id";
+            String[] columnsIm = {"P._id as _id", "P.path as Path"};
+            String selectionIm = "R." + StoreDb.Record.COLUMN_ID + " = ?";
+            String[] selectionArgsIm =  new String[]{String.valueOf(recordId)};
+            cursor = db.query(tableIm, columnsIm, selectionIm, selectionArgsIm, null, null, null);
+
+            if (cursor != null && cursor.getCount() > 0){
+                cursor.moveToFirst();
+                do {
+                    db.delete(
+                            StoreDb.Photo.TABLE_NAME,
+                            "_id = ?",
+                            new String[]{String.valueOf(cursor.getLong(0))}
+                    );
+                }while (cursor.moveToNext());
+            }
+
             //Сохранение картинок
-            //!!!!!!!!
-            /*for(int i = 0; i < imagePaths.size() && i<3; i++){
-                Object[] o = imagePaths.get(i);
-                if (o != null && o[0] != null){
-                    ContentValues c = new ContentValues();
-                    c.put(StoreDb.Photo.COLUMN_PATH, (String) o[1]);
-                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, recordId);
-                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
-                }
-            }*/
             for(int i = 0; i < 3; i++){
                 if (imagePaths[i] != null){
                     ContentValues c = new ContentValues();
@@ -346,32 +280,10 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     db.insert(StoreDb.Photo.TABLE_NAME, null, c);
                 }
             }
-            //&&&&&&
-            /*
-            for (int i = 0; i < imagePathsUri.length && i < 3; i++){
-                if (imagePathsUri[i] != null){
-                    ContentValues c = new ContentValues();
-                    c.put(StoreDb.Photo.COLUMN_PATH, imagePathsUri[i].toString());
-                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, recordId);
-                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
-                }
-            }*/
         } else {
             long id = db.insert(StoreDb.Record.TABLE_NAME, null, cv);
 
             //Сохранение картинок
-            //!!!
-            /*
-            for(int i = 0; i<imagePaths.size() && i<3; i++){
-                Object[] o = imagePaths.get(i);
-                if (o != null){
-                    ContentValues c = new ContentValues();
-                    c.put(StoreDb.Photo.COLUMN_PATH, (String) o[1]);
-                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, id);
-                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
-                }
-            }
-            */
             for(int i = 0; i < 3; i++){
                 if (imagePaths[i] != null){
                     ContentValues c = new ContentValues();
@@ -380,16 +292,6 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     db.insert(StoreDb.Photo.TABLE_NAME, null, c);
                 }
             }
-            //&&&&&&
-            /*
-            for (int i = 0; i < imagePathsUri.length && i < 3; i++){
-                if (imagePathsUri[i] != null){
-                    ContentValues c = new ContentValues();
-                    c.put(StoreDb.Photo.COLUMN_PATH, imagePathsUri[i].toString());
-                    c.put(StoreDb.Photo.COLUMN_RECORD_ID, id);
-                    db.insert(StoreDb.Photo.TABLE_NAME, null, c);
-                }
-            }*/
         }
         goMain();
     }
@@ -403,6 +305,9 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     public void goMain(){
         // закрываем подключение
         db.close();
+
+        imagePaths = null;
+
         // переход к главной activity
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -555,15 +460,8 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     public void onDeleteImage(View v) {
         countImage--;
         imageViews[countImage].setImageDrawable(null);
-        //!!!!
-        //imagePaths.remove();
-        for(int i = 0; i < 3; i++){
-            imagePaths[i] = null;
-        }
-        //&&&&&&
-        /*for(int i = 0; i < 3; i++){
-            imagePathsUri[i] = null;
-        }*/
+        imagePaths[countImage] = null;
+
         if (countImage < 3){
             loadImageButton.setEnabled(true);
         }
@@ -578,17 +476,13 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
 
-        Bitmap bitmap = null;
-
         switch(requestCode) {
             case GALLERY_REQUEST:
                 if(resultCode == RESULT_OK){
-                    //!!!!
                     Uri selectedImage = imageReturnedIntent.getData();
                     String uriStr = selectedImage.toString();
 
                     //Сохранение полного пути
-
                     String[] filePathColumn = {MediaStore.Images.Media.DATA};
                     Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
                     cursor.moveToFirst();
@@ -596,29 +490,13 @@ public class EditRecordActivity extends AppCompatActivity implements AdapterView
                     String filePath = cursor.getString(columnIndex);
                     cursor.close();
 
-                    //&&&&&&
-                    /*
-                    try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }*/
-
-                    //imageViews[countImage].setImageBitmap(bitmap);
                     Picasso.with(this)
                             .load(selectedImage)
                             .placeholder(R.drawable.ic_autorenew_black_24dp)
                             .error(R.drawable.ic_sync_disabled_black_24dp)
                             .into(imageViews[countImage]);
-                    //!!!!
-                    /*Object[] o = new Object[2];
-                    o[0] = null;
-                    o[1] = filePath;
-                    imagePaths.add(o);*/
 
                     imagePaths[countImage] = filePath;
-                    //&&&&&&
-                    //imagePathsUri[countImage] = selectedImage;
                     countImage++;
 
                     if (countImage == 3){
